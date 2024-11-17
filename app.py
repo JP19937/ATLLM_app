@@ -1,6 +1,7 @@
 import zmq
 import streamlit as st
 import subprocess
+import google.generativeai as genai
 
 
 def send_query():
