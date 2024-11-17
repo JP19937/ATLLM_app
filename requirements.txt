@@ -1,5 +1,5 @@
 pyzmq
--U google-generativeai
+google-generativeai
 torch
 torchvision
 torchaudio
