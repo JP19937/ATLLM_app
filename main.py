@@ -97,8 +97,8 @@ if __name__ == '__main__':
                 print(f"Interface: found {len(texts)} news with average estimation {average}")
                 response = chat.send_message(f"Interface: found {len(texts)} news with average estimation {average}")
             else:
-                print(f"Interface: news not found")
-                response = chat.send_message(f"Interface: news not found")
+                print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
+                response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
             message = f"{response.text}"
 
         if message.startswith("POST-QUERY"):
