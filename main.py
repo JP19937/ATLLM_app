@@ -73,7 +73,7 @@ if __name__ == '__main__':
         response = chat.send_message(f"User: {query}")
         message = f"{response.text}"
 
-                if message.startswith("GET-QUERY"):
+        if message.startswith("GET-QUERY"):
             company_name = message.replace('GET-QUERY:', '')
             company_name = company_name[1:-1]
             print(company_name)
