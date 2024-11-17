@@ -1,3 +1,4 @@
+import random
 import sqlite3
 import os
 import google.generativeai as genai
@@ -95,8 +96,8 @@ if __name__ == '__main__':
 
                 average = sum / len(predictions)
 
-                print(f"Interface: found {len(texts)} news with average estimation {average}")
-                response = chat.send_message(f"Interface: found {len(texts)} news with average estimation {average}")
+                print(f"Interface: found {random.Random} news with average estimation {average}")
+                response = chat.send_message(f"Interface: found {random.Random} news with average estimation {average}")
             else:
                 print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
                 response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
