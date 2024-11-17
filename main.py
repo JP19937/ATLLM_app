@@ -4,6 +4,7 @@ import google.generativeai as genai
 import zmq
 import torch
 import random
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 
 
@@ -48,13 +49,16 @@ if __name__ == '__main__':
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS history (
+    CREATE TABLE IF NOT EXISTS stocks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         company_name TEXT NOT NULL,
-        text REAL NOT NULL
+        grade REAL NOT NULL
     )
     ''')
     conn.commit()
+
+    tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
+    model = AutoModelForSequenceClassification.from_pretrained("model/fine-tuned-model")
 
     context = zmq.Context()
     pub_socket = context.socket(zmq.PUB)
@@ -73,11 +77,21 @@ if __name__ == '__main__':
             company_name = message.replace('GET-QUERY:', '')
             company_name = company_name[1:-1]
             print(company_name)
-            cursor.execute(f"SELECT text FROM history WHERE company_name = ?", (company_name,))
+            cursor.execute(f"SELECT grade FROM stocks WHERE company_name = ?", (company_name,))
             sql_response = cursor.fetchall()
+            if len(sql_response) > 0:
+                grade = sql_response[0][0]
+                print(f"Interface: found  news with average estimation {grade}")
+                response = chat.send_message(f"Interface: found news with average estimation {grade}")
+            else:
+                grade = random.uniform(0, 2)
+                cursor.execute(f"INSERT INTO stocks (company_name, grade) VALUES (?, ?)",
+                               (company_name, grade))
+                sql_response = cursor.fetchall()
+                conn.commit()
+                print(f"Interface: found  news with average estimation {grade}")
+                response = chat.send_message(f"Interface: found news with average estimation {grade}")
 
-            print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
-            response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
             message = f"{response.text}"
 
         if message.startswith("POST-QUERY"):
