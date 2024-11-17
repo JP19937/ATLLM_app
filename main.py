@@ -4,7 +4,6 @@ import google.generativeai as genai
 import zmq
 import torch
 import random
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 
 
@@ -57,9 +56,6 @@ if __name__ == '__main__':
     ''')
     conn.commit()
 
-    tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
-    model = AutoModelForSequenceClassification.from_pretrained("model/fine-tuned-model")
-
     context = zmq.Context()
     pub_socket = context.socket(zmq.PUB)
     pub_socket.bind("tcp://127.0.0.1:5555")
@@ -79,27 +75,9 @@ if __name__ == '__main__':
             print(company_name)
             cursor.execute(f"SELECT text FROM history WHERE company_name = ?", (company_name,))
             sql_response = cursor.fetchall()
-            texts = []
-            for text in sql_response:
-                texts.append(text[0])
-            if len(texts) > 0:
-                inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
-                with torch.no_grad():
-                    outputs = model(**inputs)
-                    logits = outputs.logits
-                    predictions = torch.argmax(logits, dim=-1)
 
-                sum = 0
-                for prediction in predictions:
-                    sum += prediction
-
-                average = sum / len(predictions)
-
-                print(f"Interface: found {len(texts)} news with average estimation {average}")
-                response = chat.send_message(f"Interface: found {len(texts)} news with average estimation {average}")
-            else:
-                print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
-                response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
+            print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
+            response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
             message = f"{response.text}"
 
         if message.startswith("POST-QUERY"):
