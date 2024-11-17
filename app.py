@@ -1,5 +1,6 @@
 import zmq
 import streamlit as st
+import subprocess
 
 
 def send_query():
@@ -12,7 +13,7 @@ def send_query():
 
 
 if __name__ == '__main__':
-
+    subprocess.Popen(["python", "main.py"])
     context = zmq.Context()
     sub_socket = context.socket(zmq.SUB)
     sub_socket.connect("tcp://127.0.0.1:5555")
@@ -29,4 +30,3 @@ if __name__ == '__main__':
                                key="user_input", on_change=send_query)
     for message in reversed(st.session_state.history):
         st.write(message)
-

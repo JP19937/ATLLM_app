@@ -1,11 +1,9 @@
 import sqlite3
 import os
 import google.generativeai as genai
-import time
 import zmq
 import torch
-from pydantic import BaseModel
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 
 

@@ -1,0 +1,7 @@
+pyzmq
+google-generativeai
+torch
+torchvision
+torchaudio
+transformers
+python-dotenv
