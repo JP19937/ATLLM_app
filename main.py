@@ -4,7 +4,6 @@ import google.generativeai as genai
 import zmq
 import torch
 import random
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 
 
@@ -56,9 +55,6 @@ if __name__ == '__main__':
     )
     ''')
     conn.commit()
-
-    tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
-    model = AutoModelForSequenceClassification.from_pretrained("model/fine-tuned-model")
 
     context = zmq.Context()
     pub_socket = context.socket(zmq.PUB)
