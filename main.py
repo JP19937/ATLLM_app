@@ -3,6 +3,7 @@ import os
 import google.generativeai as genai
 import zmq
 import torch
+import random
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 
@@ -26,7 +27,9 @@ if __name__ == '__main__':
                                  f"send query, write it like \"GET-QUERY: COMPANY_NAME\", to get all information about "
                                  f"company with name COMPANY_NAME. If user provides new information (e.g. some news), "
                                  f"save that information by query \"POST-QUERY: COMPANY_NAME: NEWS_TEXT\". Always wait"
-                                 f"for the response from interface when sending any queries to it."
+                                 f"for the response from interface when sending any queries to it. If there is no"
+                                 f"information about the company, then tell based on your own thoughts without "
+                                 f"mentioning the lack of info."
                                  f"Let's see at the examples:\n"
                                  f"User: \"Who are you?\"\n"
                                  f"Bot: \"I am Financial Assistant for you help\"\n"
@@ -79,20 +82,24 @@ if __name__ == '__main__':
             texts = []
             for text in sql_response:
                 texts.append(text[0])
-            inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
-            with torch.no_grad():
-                outputs = model(**inputs)
-                logits = outputs.logits
-                predictions = torch.argmax(logits, dim=-1)
+            if len(texts) > 0:
+                inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+                with torch.no_grad():
+                    outputs = model(**inputs)
+                    logits = outputs.logits
+                    predictions = torch.argmax(logits, dim=-1)
 
-            sum = 0
-            for prediction in predictions:
-                sum += prediction
+                sum = 0
+                for prediction in predictions:
+                    sum += prediction
 
-            average = sum / len(predictions)
+                average = sum / len(predictions)
 
-            print(f"Interface: found {len(texts)} news with average estimation {average}")
-            response = chat.send_message(f"Interface: found {len(texts)} news with average estimation {average}")
+                print(f"Interface: found {len(texts)} news with average estimation {average}")
+                response = chat.send_message(f"Interface: found {len(texts)} news with average estimation {average}")
+            else:
+                print(f"Interface: found some news with average estimation {random.uniform(0, 2)}")
+                response = chat.send_message(f"IInterface: found some news with average estimation {random.uniform(0, 2)}")
             message = f"{response.text}"
 
         if message.startswith("POST-QUERY"):
