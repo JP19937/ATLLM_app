@@ -2,7 +2,6 @@ import sqlite3
 import os
 import google.generativeai as genai
 import zmq
-import torch
 import random
 from dotenv import load_dotenv
 
@@ -54,6 +53,13 @@ if __name__ == '__main__':
         grade REAL NOT NULL
     )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_name TEXT NOT NULL,
+            grade REAL NOT NULL
+        )
+        ''')
     conn.commit()
 
     context = zmq.Context()
@@ -77,7 +83,7 @@ if __name__ == '__main__':
             sql_response = cursor.fetchall()
             if len(sql_response) > 0:
                 grade = sql_response[0][0]
-                print(f"Interface: found  news with average estimation {grade}")
+                print(f"Interface: found news with average estimation {grade}")
                 response = chat.send_message(f"Interface: found news with average estimation {grade}")
             else:
                 grade = random.uniform(0, 2)
@@ -85,12 +91,12 @@ if __name__ == '__main__':
                                (company_name, grade))
                 sql_response = cursor.fetchall()
                 conn.commit()
-                print(f"Interface: found  news with average estimation {grade}")
+                print(f"Interface: found news with average estimation {grade}")
                 response = chat.send_message(f"Interface: found news with average estimation {grade}")
 
             message = f"{response.text}"
 
-        if message.startswith("POST-QUERY"):
+        elif message.startswith("POST-QUERY"):
             arr = message.split(':')
             cursor.execute(f"INSERT INTO history (company_name, text) VALUES (?, ?)",
                            (arr[1][1:], arr[2][1:-1]))
